@@ -1,22 +1,24 @@
-[project]
+[tool.poetry]
 name = "web-base"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "Faizik12",email = "zerg9119@gmail.com"}
-]
+authors = ["Faizik12 zerg9119@gmail.com"]
 readme = "README.md"
 packages = [{include = "app"}]
-requires-python = "3.8.20"
-dependencies = [
-]
 
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.poetry.dependencies]
+python = "3.8.20"
+flask = "3.0.3"
+gunicorn = "20.1.0"
+python-dotenv = "0.14.0"
+pymysql = "1.1.1"
+sqlalchemy = "1.4.40"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "<7"
 pytest = "<8.4.1"
 isort = "<6.0.1"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
