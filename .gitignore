@@ -8,7 +8,6 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
 develop-eggs/
 dist/
 downloads/
@@ -196,7 +195,7 @@ cython_debug/
 tmp/
 
 # dependencies
-/node_modules
+frontend/node_modules
 /.pnp
 .pnp.js
 
