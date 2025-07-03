@@ -3,8 +3,8 @@ import sys
 
 
 def configure_logging():
-    log_format = '%(asctime)s | %(levelname)-8s | ' \
-                 '%(name)s.%(funcName)s | %(message)s'
+    log_format = ('%(asctime)s | %(levelname)-8s | '
+                  '%(name)s.%(funcName)s | %(message)s')
     log_level = logging.INFO
 
     handler = logging.StreamHandler(sys.stdout)
