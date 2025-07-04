@@ -3,12 +3,11 @@ import logging
 
 from flask import Flask, send_from_directory, abort
 
+from backend.constants.paths import FRONTEND_BUILD_DIR
 from backend.config import Config
 from backend.logging_config import configure_logging
 from backend.routes import register_routers
 from backend.error_handlers import register_error_handlers
-
-BUILD_DIR = os.path.join(os.path.dirname(__file__), 'frontend', 'build')
 
 configure_logging()
 logger = logging.getLogger(__name__)
@@ -16,8 +15,7 @@ logger.info('Конфигурация логирования завершена'
 
 app = Flask(
     __name__,
-    static_folder=BUILD_DIR,
-    static_url_path=''
+    static_folder=FRONTEND_BUILD_DIR
 )
 logger.info('Экземпляр приложения создан')
 
