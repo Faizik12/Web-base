@@ -20,23 +20,43 @@ class BaseMixin:
     updated_at = Column(DateTime, server_default=func.now(),
                         onupdate=func.now(), nullable=True)
 
-    def to_dict(self, included_fields=None, excluded_fields=None, format_rules=None):
+    def to_dict(self, included_fields=None, format_rules=None):
         if included_fields is None:
             included_fields = [c.name for c in self.__table__.columns] # type: ignore
-        if excluded_fields is None:
-            excluded_fields = set()
-        if format_rules is None:
-            format_rules = {}
+
+        field_rules = {}
+        type_rules = {}
+        excluded_rules = set()
+
+        if format_rules is not None:
+            field_rules = format_rules.get('field_rules', {})
+            type_rules = format_rules.get('type_rules', {})
+            excluded_rules = format_rules.get('excluded_rules', set())
 
         result = {}
         for field in included_fields:
-            if field in excluded_fields:
-                continue
             value = getattr(self, field)
-            if field in format_rules:
-                result[field] = format_rules[field](value)
-            else:
+
+            if field in excluded_rules:
                 result[field] = value
+                continue
+
+            if field in field_rules:
+                try:
+                    formatted_value = field_rules[field](value)
+                except Exception:
+                    logger.exception(f'Ошибка при форматировании поля "{field}" со значением {value}')
+                    raise
+                result[field] = formatted_value
+                continue
+
+            formatted_value = value
+            for t, formatter in type_rules.items():
+                if isinstance(value, t):
+                    formatted_value = formatter(value)
+                    break
+            result[field] = formatted_value
+
         return result
 
     @classmethod
@@ -47,7 +67,6 @@ Base = declarative_base(cls=BaseMixin)
 
 _engine = None
 _SessionLocal = None
-
 
 def get_engine():
     global _engine
