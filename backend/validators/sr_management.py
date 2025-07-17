@@ -60,19 +60,19 @@ def validate_ot_record(data):
 def validate_inspection_schedule(data):
     errors = {}
 
-    value = data.get('name')
-    if not value or not isinstance(value, str) or not value.strip():
+    name = data.get('name')
+    if not name or not isinstance(name, str) or not name.strip():
         errors['name'] = 'Обязательное поле, непустая строка'
-    elif len(value) > 100:
+    elif len(name) > 100:
         errors['name'] = f'Длина не должна превышать {100} символов'
 
-    value = data.get('inspection_planned_date')
-    if not isinstance(value, str) or not is_valid_date_ddmmyyyy(value):
+    planned_date = data.get('inspection_planned_date')
+    if not isinstance(planned_date, str) or not is_valid_date_ddmmyyyy(planned_date):
         errors['inspection_planned_date'] = 'Обязательное поле. Формат даты: ДД-MM-ГГГГ (например, 31-12-2025)'
 
-    value = data.get('inspection_actual_date')
-    if value is not None:
-        if not isinstance(value, str) or not is_valid_date_ddmmyyyy(value):
+    actual_date = data.get('inspection_actual_date')
+    if actual_date is not None:
+        if not isinstance(actual_date, str) or not is_valid_date_ddmmyyyy(actual_date):
             errors['inspection_actual_date'] = 'Формат даты: ДД-MM-ГГГГ (например, 31-12-2025)'
 
     if errors:

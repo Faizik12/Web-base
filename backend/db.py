@@ -20,9 +20,11 @@ class BaseMixin:
     updated_at = Column(DateTime, server_default=func.now(),
                         onupdate=func.now(), nullable=True)
 
-    def to_dict(self, included_fields=None, format_rules=None):
+    def to_dict(self, included_fields=None, excluded_fields=None, format_rules=None):
+        if excluded_fields is None:
+            excluded_fields = set()
         if included_fields is None:
-            included_fields = [c.name for c in self.__table__.columns] # type: ignore
+            included_fields = [c.name for c in self.__table__.columns if c.name not in excluded_fields] # type: ignore
 
         field_rules = {}
         type_rules = {}

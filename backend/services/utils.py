@@ -46,19 +46,18 @@ def fetch_data_with_field_names(model, field_order, field_names, excluded_fields
 
 
 def create_record(model, data, excluded_fields=None, format_rules=None):
-    if excluded_fields is None:
-        excluded_fields = set()
-
     try:
         with db_session() as session:
             record = model(**data)
             session.add(record)
             session.commit()
             session.refresh(record)
-            record_data = record.to_dict(excluded_fields=excluded_fields, format_rules=format_rules)
     except SQLAlchemyError:
         logger.exception(f'Ошибка при создании записи для модели {model.__name__}')
         raise
+
+    try:
+        record_data = record.to_dict(format_rules=format_rules, excluded_fields=excluded_fields)
     except Exception:
         logger.exception(f'Ошибка при сериализации объекта модели {model.__name__}')
         raise

@@ -22,12 +22,21 @@ def get_ot_records():
         format_rules=format_rules
     )
 
+def create_ot_record(data):
+    excluded_fields = {'created_at', 'updated_at'}
+
+    format_rules = FormatRulesBuilder().with_defaults().build()
+
+    result = create_record(model=OTRecord,
+                           data=data,
+                           excluded_fields=excluded_fields,
+                           format_rules=format_rules)
+
+    return result
+
 def delete_ot_record(id):
     return delete_record_by_id(model=OTRecord, record_id=id)
 
-def create_ot_record(data):
-    excluded_fields = {'created_at', 'updated_at'}
-    result = create_record(OTRecord, data, excluded_fields=excluded_fields)
     return result
 
 def get_inspection_schedules():
@@ -45,7 +54,13 @@ def get_inspection_schedules():
 
 def create_inspection_schedule(data):
     excluded_fields = {'created_at', 'updated_at'}
-    result = create_record(InspectionSchedule, data, excluded_fields=excluded_fields)
+
+    format_rules = FormatRulesBuilder().with_defaults().build()
+
+    result = create_record(model=InspectionSchedule,
+                           data=data,
+                           excluded_fields=excluded_fields,
+                           format_rules=format_rules)
     return result
 
 def delete_inspection_schedule(id):
