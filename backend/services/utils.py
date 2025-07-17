@@ -8,12 +8,11 @@ from backend.db import db_session
 
 logger = logging.getLogger(__name__)
 
-def fetch_data_with_field_names(model, field_order, field_names, excluded_fields=None, format_rules=None, filters=None):
+def fetch_data(model, field_order, excluded_fields=None, format_rules=None, filters=None):
     if excluded_fields is None:
         excluded_fields = set()
 
     included_fields = [f for f in field_order if f not in excluded_fields]
-    included_names = {field: field_names.get(field, field) for field in included_fields}
     # Поменять included_fields на fields name, будем определять поля которые нужно вывести по объекту имен полей, все что в них нет будет являться полем не для пользлователя
     try:
         with db_session() as session:
@@ -29,7 +28,22 @@ def fetch_data_with_field_names(model, field_order, field_names, excluded_fields
         logger.exception(f'Ошибка при сериализации объекта модели {model.__name__}')
         raise
 
-    return dict(field_names=included_names, data=data)
+    return data
+
+def fetch_data_with_field_names(model, field_order, field_names, excluded_fields=None, format_rules=None, filters=None):
+    data = fetch_data(
+        model=model,
+        field_order=field_order,
+        excluded_fields=excluded_fields,
+        format_rules=format_rules,
+        filters=filters
+    )
+
+    included_fields = [f for f in field_order if f not in excluded_fields]
+    included_names = {field: field_names.get(field, field) for field in included_fields}
+
+    return dict(data=data, field_names=included_names, field_order=field_order)
+
 
 def create_record(model, data, excluded_fields=None, format_rules=None):
     if excluded_fields is None:
