@@ -19,7 +19,7 @@ OT_RECORD_FIELD_NAMES = {
     'eb_group': 'Группа ЭБ',
     'employment_start_date': 'Дата трудоустройства',
     'is_engineer': 'ИТР',
-    'is_worker': 'Рабочий персонаж',
+    'is_worker': 'Рабочий персонал',
 
     'eb_exam_previous_date': 'Экзамен ЭБ предыдущий',
     'eb_exam_actual_date': 'Экзамен ЭБ фактический',
