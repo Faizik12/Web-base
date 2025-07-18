@@ -28,7 +28,7 @@ def fetch_data(model, field_order, excluded_fields=None, format_rules=None, filt
         logger.exception(f'Ошибка при сериализации объекта модели {model.__name__}')
         raise
 
-    return data
+    return dict(data=data)
 
 def fetch_data_with_field_names(model, field_order, field_names, excluded_fields=None, format_rules=None, filters=None):
     data = fetch_data(
@@ -42,7 +42,8 @@ def fetch_data_with_field_names(model, field_order, field_names, excluded_fields
     included_fields = [f for f in field_order if f not in excluded_fields]
     included_names = {field: field_names.get(field, field) for field in included_fields}
 
-    return dict(data=data, field_names=included_names, field_order=field_order)
+    data.update(field_names=included_names, field_order=field_order) # type: ignore надо сделать типизацию
+    return data
 
 
 def create_record(model, data, excluded_fields=None, format_rules=None):
@@ -61,7 +62,7 @@ def create_record(model, data, excluded_fields=None, format_rules=None):
         logger.exception(f'Ошибка при сериализации объекта модели {model.__name__}')
         raise
 
-    return record_data
+    return dict(data=record_data)
 
 def full_update_record(model, id, data, excluded_fields=None, format_rules=None):
     # TODO: сделать возврат костомного исключения вместо None, оптимизировать работу с полями (id не должно изменяться, {immutable fields})
@@ -90,7 +91,7 @@ def full_update_record(model, id, data, excluded_fields=None, format_rules=None)
         logger.exception(f'Ошибка при сериализации объекта модели {model.__name__}')
         raise
 
-    return record_data
+    return dict(data=record_data)
 
 def delete_record_by_id(model, record_id):
     try:

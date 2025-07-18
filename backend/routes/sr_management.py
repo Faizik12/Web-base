@@ -16,9 +16,14 @@ def get_ot_records_api():
 
 @sr_management_bp.post('/ot_records')
 def add_ot_record_api():
-    data = request.json
-    if not data:
-        abort(400, description="Отсутствуют данные для создания записи")
+    payload = request.json
+    if payload is None:
+        abort(400, description='Отсутствуют тело запроса')
+
+    data = payload.get('data')
+    if data is None:
+        abort(400, description='Отсутствуют данные для создания записи')
+
     validate_ot_record(data)
     parsed_data = parse_ot_record_dates(data)
     record = create_ot_record(parsed_data)
@@ -30,9 +35,14 @@ def get_ot_record_api(id):
 
 @sr_management_bp.put('/ot_records/<int:id>')
 def update_ot_record_api(id):
-    data = request.json
-    if not data:
+    payload = request.json
+    if payload is None:
+        abort(400, description='Отсутствуют тело запроса')
+
+    data = payload.get('data')
+    if data is None:
         abort(400, description='Отсутствуют данные для обновления записи')
+
     validate_ot_record(data)
     parsed_data = parse_ot_record_dates(data)
     record = full_update_ot_record(id, parsed_data)
@@ -52,9 +62,14 @@ def get_inspection_schedules_api():
 
 @sr_management_bp.post('/inspection_schedules')
 def add_inspection_schedule_api():
-    data = request.json
-    if not data:
+    payload = request.json
+    if payload is None:
+        abort(400, description='Отсутствуют тело запроса')
+
+    data = payload.get('data')
+    if data is None:
         abort(400, description='Отсутствуют данные для создания записи')
+
     validate_inspection_schedule(data)
     parsed_data = parse_inspection_schedule(data)
     record = create_inspection_schedule(parsed_data)
@@ -66,9 +81,14 @@ def get_inspection_schedule_api(id):
 
 @sr_management_bp.put('/inspection_schedules/<int:id>')
 def update_inspection_schedule_api(id):
-    data = request.json
-    if not data:
+    payload = request.json
+    if payload is None:
+        abort(400, description='Отсутствуют тело запроса')
+
+    data = payload.get('data')
+    if data is None:
         abort(400, description='Отсутствуют данные для обновления записи')
+
     validate_inspection_schedule(data)
     parsed_data = parse_inspection_schedule(data)
     record = full_update_inspection_schedule(id, parsed_data)
