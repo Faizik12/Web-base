@@ -1,6 +1,6 @@
 import logging
 
-from backend.services.utils import fetch_data_with_field_names, delete_record_by_id, create_record
+from backend.services.utils import fetch_data_with_field_names, delete_record_by_id, create_record, full_update_record
 from backend.models import OTRecord, InspectionSchedule
 from backend.constants.field_names import OT_RECORD_FIELD_NAMES, INSPECTION_SCHEDULE_FIELD_NAMES
 from backend.constants.field_order import OT_RECORD_FIELD_ORDER, INSPECTION_SCHEDULE_FIELD_ORDER
@@ -34,6 +34,18 @@ def create_ot_record(data):
 
     return result
 
+def full_update_ot_record(id, data):
+    excluded_fields = {'created_at', 'updated_at'}
+
+    format_rules = FormatRulesBuilder().with_defaults().build()
+
+    result = full_update_record(model=OTRecord,
+                                id=id,
+                                data=data,
+                                excluded_fields=excluded_fields,
+                                format_rules=format_rules)
+    return result
+
 def delete_ot_record(id):
     return delete_record_by_id(model=OTRecord, record_id=id)
 
@@ -61,6 +73,18 @@ def create_inspection_schedule(data):
                            data=data,
                            excluded_fields=excluded_fields,
                            format_rules=format_rules)
+    return result
+
+def full_update_inspection_schedule(id, data):
+    excluded_fields = {'created_at', 'updated_at'}
+
+    format_rules = FormatRulesBuilder().with_defaults().build()
+
+    result = full_update_record(model=InspectionSchedule,
+                                id=id,
+                                data=data,
+                                excluded_fields=excluded_fields,
+                                format_rules=format_rules)
     return result
 
 def delete_inspection_schedule(id):

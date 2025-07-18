@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, abort, request
 
 from backend.parsers import parse_ot_record_dates, parse_inspection_schedule
 from backend.validators import validate_ot_record, validate_inspection_schedule
-from backend.services.sr_management import get_ot_records, get_inspection_schedules, delete_ot_record, delete_inspection_schedule, create_ot_record, create_inspection_schedule
+from backend.services.sr_management import get_ot_records, get_inspection_schedules, delete_ot_record, delete_inspection_schedule, create_ot_record, create_inspection_schedule, full_update_ot_record, full_update_inspection_schedule
 
 sr_management_bp = Blueprint('sr_management', __name__, url_prefix='/api')
 logger = logging.getLogger(__name__)
@@ -28,9 +28,15 @@ def add_ot_record_api():
 def get_ot_record_api(id):
     return jsonify(error='Not implemented yet'), 501
 
-@sr_management_bp.patch('/ot_records/<int:id>')
+@sr_management_bp.put('/ot_records/<int:id>')
 def update_ot_record_api(id):
-    return jsonify(error='Not implemented yet'), 501
+    data = request.json
+    if not data:
+        abort(400, description='Отсутствуют данные для обновления записи')
+    validate_ot_record(data)
+    parsed_data = parse_ot_record_dates(data)
+    record = full_update_ot_record(id, parsed_data)
+    return jsonify(record)
 
 @sr_management_bp.delete('/ot_records/<int:id>')
 def delete_ot_record_api(id):
@@ -48,7 +54,7 @@ def get_inspection_schedules_api():
 def add_inspection_schedule_api():
     data = request.json
     if not data:
-        abort(400, description="Отсутствуют данные для создания записи")
+        abort(400, description='Отсутствуют данные для создания записи')
     validate_inspection_schedule(data)
     parsed_data = parse_inspection_schedule(data)
     record = create_inspection_schedule(parsed_data)
@@ -58,9 +64,15 @@ def add_inspection_schedule_api():
 def get_inspection_schedule_api(id):
     return jsonify(error='Not implemented yet'), 501
 
-@sr_management_bp.patch('/inspection_schedules/<int:id>')
+@sr_management_bp.put('/inspection_schedules/<int:id>')
 def update_inspection_schedule_api(id):
-    return jsonify(error='Not implemented yet'), 501
+    data = request.json
+    if not data:
+        abort(400, description='Отсутствуют данные для обновления записи')
+    validate_inspection_schedule(data)
+    parsed_data = parse_inspection_schedule(data)
+    record = full_update_inspection_schedule(id, parsed_data)
+    return jsonify(record)
 
 @sr_management_bp.delete('/inspection_schedules/<int:id>')
 def delete_inspection_schedule_api(id):

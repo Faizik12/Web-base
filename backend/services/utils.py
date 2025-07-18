@@ -52,12 +52,40 @@ def create_record(model, data, excluded_fields=None, format_rules=None):
             session.add(record)
             session.commit()
             session.refresh(record)
+            record_data = record.to_dict(format_rules=format_rules, excluded_fields=excluded_fields)
     except SQLAlchemyError:
         logger.exception(f'Ошибка при создании записи для модели {model.__name__}')
         raise
 
+    except Exception:
+        logger.exception(f'Ошибка при сериализации объекта модели {model.__name__}')
+        raise
+
+    return record_data
+
+def full_update_record(model, id, data, excluded_fields=None, format_rules=None):
+    # TODO: сделать возврат костомного исключения вместо None, оптимизировать работу с полями (id не должно изменяться, {immutable fields})
     try:
-        record_data = record.to_dict(format_rules=format_rules, excluded_fields=excluded_fields)
+        with db_session() as session:
+            record = session.query(model).get(id)
+            if not record:
+                return None
+
+            for key, value in data.items():
+                if key == 'id':
+                    continue
+                if hasattr(record, key):
+                    setattr(record, key, value)
+
+            session.commit()
+            session.refresh(record)
+
+            record_data = record.to_dict(format_rules=format_rules, excluded_fields=excluded_fields)
+
+    except SQLAlchemyError:
+        logger.exception(f'Ошибка при обеовлении записи модели {model.__name__}')
+        raise
+
     except Exception:
         logger.exception(f'Ошибка при сериализации объекта модели {model.__name__}')
         raise
