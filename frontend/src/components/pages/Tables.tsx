@@ -88,7 +88,7 @@ const ServerConnectedTable: React.FC<Props> = ({ isFirst }) => {
       setError(null);
       
       // Получаем данные с сервера
-      const response = await axios.get<ApiResponse>(`#`);
+      const response = await axios.get<ApiResponse>(`/api/${check}`);
       
       // Форматируем колонки на основе field_names из ответа
       const formattedColumns = Object.entries(response.data.field_names).map(
@@ -124,7 +124,7 @@ const ServerConnectedTable: React.FC<Props> = ({ isFirst }) => {
       async () => {
         try {
           // Отправляем PATCH запрос на сервер
-          await axios.patch(`#`, {
+          await axios.patch(`/api/${check}/${id}`, {
             [field]: value
           });
           
@@ -154,7 +154,7 @@ const ServerConnectedTable: React.FC<Props> = ({ isFirst }) => {
       async () => {
         try {
           // Отправляем DELETE запрос на сервер
-          await axios.delete(`#`);
+          await axios.delete(`/api/${check}`);
           
           // Обновляем локальное состояние
           setData(prevData => prevData.filter(item => item.id !== id));
