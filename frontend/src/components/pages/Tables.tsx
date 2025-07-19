@@ -25,6 +25,7 @@ interface ApiResponse {
     [key: string]: string;
   };
   data: DataItem[];
+  field_order: string[];
 }
 
 interface ColumnConfig {
@@ -91,14 +92,14 @@ const ServerConnectedTable: React.FC<Props> = ({ isFirst }) => {
       const response = await axios.get<ApiResponse>(`/api/${check}`);
       
       // Форматируем колонки на основе field_names из ответа
-      const formattedColumns = Object.entries(response.data.field_names).map(
-        ([fieldId, label]) => ({
-          id: fieldId,
-          label,
+      const formattedColumns = response.data.field_order.map(
+        (id) => ({
+          id,
+          label: response.data.field_names.id,
           minWidth: 100,
           align: 'left' as const,
-          editable: fieldId !== 'id',
-          validator: getDefaultValidator(fieldId),
+          editable: id !== 'id',
+          validator: getDefaultValidator(id),
         })
       );
       

@@ -42,7 +42,6 @@ const calculateDaysDiff = (targetDate: string): number => {
     // Конвертируем миллисекунды в дни (1000 мс * 60 сек * 60 мин * 24 часа)
     const differenceInDays: number = Math.floor(differenceInMs / (1000 * 60 * 60 * 24));
     
-    console.log(Number(differenceInDays));
     return differenceInDays;
 }
 
