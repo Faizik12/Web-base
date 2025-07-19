@@ -1,19 +1,22 @@
 check: lint test
 
-install:
-	poetry install
-
 lint:
-	poetry run flake8 app
+	poetry run flake8 backend
 
 test:
 	poetry run pytest
 
-dev:
-	poetry run flask --app app --debug run
+install:
+	poetry install
+
+migrate:
+	poetry run alembic upgrade head
+
+dev: migrate
+	poetry run flask --app backend --debug run
 
 PORT ?= 8000
-start:
-	poetry run gunicorn app:app --bind 0.0.0.0:$(PORT) --workers 4
+start: migrate
+	poetry run gunicorn backend:app --bind 0.0.0.0:$(PORT) --workers 4
 
-.PHONY: check install lint test dev start
+.PHONY: check lint test install migrate dev start
