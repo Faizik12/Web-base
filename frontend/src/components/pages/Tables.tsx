@@ -9,9 +9,11 @@ import {
   DialogActions,
   DialogTitle,
   DialogContent,
-  DialogContentText
+  DialogContentText,
+  TextField,
 } from '@mui/material';
 import axios from 'axios';
+import { getDefaultValidator, Validator } from '../../utils/validators';
 
 interface DataItem {
   id: number;
@@ -32,6 +34,7 @@ interface ColumnConfig {
   align?: 'right' | 'left' | 'center';
   editable?: boolean;
   renderCell?: (row: DataItem) => React.ReactNode;
+  validator?: Validator;
 }
 
 interface SnackbarState {
@@ -53,6 +56,11 @@ const ServerConnectedTable: React.FC<Props> = ({ isFirst }) => {
     open: false,
     message: '',
     severity: 'success'
+  });
+  const [newRowDialog, setNewRowDialog] = useState({
+    open: false,
+    values: {} as Record<string, any>,
+    errors: {} as Record<string, string>
   });
   const check = isFirst ? 'ot_records' : 'inspection_schedules';
   
@@ -80,7 +88,7 @@ const ServerConnectedTable: React.FC<Props> = ({ isFirst }) => {
       setError(null);
       
       // Получаем данные с сервера
-      const response = await axios.get<ApiResponse>(`http://localhost:5000/api/${check}`);
+      const response = await axios.get<ApiResponse>(`#`);
       
       // Форматируем колонки на основе field_names из ответа
       const formattedColumns = Object.entries(response.data.field_names).map(
@@ -89,7 +97,8 @@ const ServerConnectedTable: React.FC<Props> = ({ isFirst }) => {
           label,
           minWidth: 100,
           align: 'left' as const,
-          editable: fieldId !== 'id' // Запрещаем редактирование id
+          editable: fieldId !== 'id',
+          validator: getDefaultValidator(fieldId),
         })
       );
       
@@ -115,7 +124,7 @@ const ServerConnectedTable: React.FC<Props> = ({ isFirst }) => {
       async () => {
         try {
           // Отправляем PATCH запрос на сервер
-          await axios.patch(`/api/${check}/${id}`, {
+          await axios.patch(`#`, {
             [field]: value
           });
           
@@ -145,7 +154,7 @@ const ServerConnectedTable: React.FC<Props> = ({ isFirst }) => {
       async () => {
         try {
           // Отправляем DELETE запрос на сервер
-          await axios.delete(`/api/${check}/${id}`);
+          await axios.delete(`#`);
           
           // Обновляем локальное состояние
           setData(prevData => prevData.filter(item => item.id !== id));
@@ -161,27 +170,43 @@ const ServerConnectedTable: React.FC<Props> = ({ isFirst }) => {
     );
   };
 
-/*  const handleAdd = async () => {
+  const handleAdd = () => {
+    const initialValues = columns.reduce((acc, column) => {
+      if (column.id !== 'id') acc[column.id] = '';
+      return acc;
+    }, {} as Record<string, any>);
+
+    setNewRowDialog({
+      open: true,
+      values: initialValues,
+      errors: {}
+    });
+  };
+
+  const saveNewRow = async () => {
+    const errors: Record<string, string> = {};
+    
+    columns.forEach(column => {
+      if (column.id !== 'id') {
+        const error = column.validator?.(newRowDialog.values[column.id]);
+        if (error) errors[column.id] = error;
+      }
+    });
+
+    if (Object.keys(errors).length > 0) {
+      setNewRowDialog(prev => ({ ...prev, errors }));
+      return;
+    }
+
     try {
-      // Базовые данные для нового элемента
-      const newItem = {
-        name: 'Новый элемент',
-        description: '',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      
-      // Отправляем POST запрос на сервер
-      const response = await axios.post<DataItem>(`/items`, newItem);
-      
-      // Обновляем локальное состояние
-      setData(prevData => [...prevData, response.data]);
-      showSnackbar('Элемент добавлен', 'success');
+      const response = await axios.post<DataItem>(`#`, newRowDialog.values);
+      setData([...data, response.data]);
+      setNewRowDialog(prev => ({ ...prev, open: false }));
+      showSnackbar('Новая запись добавлена', 'success');
     } catch (err) {
-      showSnackbar('Ошибка при добавлении элемента', 'error');
+      showSnackbar('Ошибка при добавлении', 'error');
     }
   };
-*/
 
   const showSnackbar = (message: string, severity: 'success' | 'error') => {
     setSnackbar({ open: true, message, severity });
@@ -221,6 +246,13 @@ const ServerConnectedTable: React.FC<Props> = ({ isFirst }) => {
           Обновить данные
         </Button>
       </div>
+      <div style={{ marginBottom: '20px' }}>
+
+        <Button variant="contained" onClick={handleAdd} style={{ marginBottom: '20px' }}>
+          Добавить новую запись
+        </Button>
+        
+      </div>
       
       <DynamicTable
         data={data}
@@ -231,6 +263,39 @@ const ServerConnectedTable: React.FC<Props> = ({ isFirst }) => {
         idField="id"
         pagination={true}
       />
+
+      <Dialog open={newRowDialog.open} onClose={() => setNewRowDialog(prev => ({ ...prev, open: false }))}>
+        <DialogTitle>Добавить новую запись</DialogTitle>
+        <DialogContent>
+          {columns.map(column => (
+            column.id !== 'id' && (
+              <TextField
+                key={column.id}
+                margin="dense"
+                label={column.label}
+                fullWidth
+                variant="outlined"
+                value={newRowDialog.values[column.id] || ''}
+                onChange={(e) => setNewRowDialog(prev => ({
+                  ...prev,
+                  values: { ...prev.values, [column.id]: e.target.value },
+                  errors: { ...prev.errors, [column.id]: '' }
+                }))}
+                error={!!newRowDialog.errors[column.id]}
+                helperText={newRowDialog.errors[column.id]}
+              />
+            )
+          ))}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setNewRowDialog(prev => ({ ...prev, open: false }))}>Отмена</Button>
+          <Button onClick={saveNewRow} color="primary">Сохранить</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}>
+        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+      </Snackbar>
       
       <Snackbar
         open={snackbar.open}

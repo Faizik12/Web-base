@@ -44,10 +44,10 @@ const ApiDemoPage: React.FC = () => {
     setLoadingTables(true);
     setErrorTables(null);
     try {
-      const response = await fetch('http://localhost:5000/api/databases/3');
+      const response = await fetch('/api/databases/3');
       if (!response.ok) throw new Error('Ошибка загрузки списка таблиц');
       const data = await response.json();
-      setTables(data);
+      setTables(data.data);
     } catch (err) {
       setErrorTables(err instanceof Error ? err.message : 'Неизвестная ошибка');
     } finally {
@@ -60,7 +60,7 @@ const ApiDemoPage: React.FC = () => {
     setLoadingFTable(true);
     setErrorFTable(null);
     try {
-      const response = await fetch('http://localhost:5000/api/ot_records');
+      const response = await fetch('/api/ot_records');
       if (!response.ok) throw new Error('Ошибка загрузки данных первой таблицы');
       const data = await response.json();
       setFTable(data.data);
@@ -76,7 +76,7 @@ const ApiDemoPage: React.FC = () => {
     setLoadingSTable(true);
     setErrorSTable(null);
     try {
-      const response = await fetch('http://localhost:5000/api/inspection_schedules');
+      const response = await fetch('/api/inspection_schedules');
       if (!response.ok) throw new Error('Ошибка загрузки задач');
       const data = await response.json();
       setSTable(data.data);
