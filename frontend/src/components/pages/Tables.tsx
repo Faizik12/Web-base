@@ -93,13 +93,13 @@ const ServerConnectedTable: React.FC<Props> = ({ isFirst }) => {
       
       // Форматируем колонки на основе field_names из ответа
       const formattedColumns = response.data.field_order.map(
-        (id) => ({
-          id,
-          label: response.data.field_names.id,
+        (fieldId) => ({
+          id: fieldId,
+          label: response.data.field_names.fieldId,
           minWidth: 100,
           align: 'left' as const,
-          editable: id !== 'id',
-          validator: getDefaultValidator(id),
+          editable: fieldId !== 'id',
+          validator: getDefaultValidator(fieldId),
         })
       );
       
