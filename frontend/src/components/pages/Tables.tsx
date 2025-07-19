@@ -199,7 +199,7 @@ const ServerConnectedTable: React.FC<Props> = ({ isFirst }) => {
     }
 
     try {
-      const response = await axios.post<DataItem>(`#`, newRowDialog.values);
+      const response = await axios.post<DataItem>(`/api/${check}`, newRowDialog.values);
       setData([...data, response.data]);
       setNewRowDialog(prev => ({ ...prev, open: false }));
       showSnackbar('Новая запись добавлена', 'success');
