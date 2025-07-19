@@ -17,12 +17,12 @@ const ListPage: React.FC = () => {
     const fetchData = async () => {
       try {
         // Замените на ваш реальный API endpoint
-        const response = await fetch('http://localhost:5000/api/databases');
+        const response = await fetch('/api/databases');
         if (!response.ok) {
           throw new Error('Ошибка загрузки данных');
         }
         const data = await response.json();
-        setItems(data);
+        setItems(data.data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Неизвестная ошибка');
       } finally {

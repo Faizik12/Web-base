@@ -24,6 +24,7 @@ interface DynamicTableProps {
     align?: 'right' | 'left' | 'center';
     editable?: boolean;
     format?: (value: any) => React.ReactNode;
+    validator?: (value: any) => string | null;
   }[];
   loading?: boolean;
   onEdit?: (id: string | number, field: string, value: any) => void;
@@ -45,6 +46,7 @@ const DynamicTable = ({
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [editingId, setEditingId] = React.useState<string | number | null>(null);
   const [editData, setEditData] = React.useState<Record<string, any> | null>(null);
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
 
   // Обработчики изменений (остаются без изменений)
   const handleEditClick = (row: Record<string, any>) => {
@@ -53,13 +55,29 @@ const DynamicTable = ({
   };
 
   const handleSave = () => {
-    if (editingId && editData && onEdit) {
-      Object.keys(editData).forEach(key => {
-        if (key !== idField && editData[key] !== data.find(item => item[idField] === editingId)?.[key]) {
-          onEdit(editingId, key, editData[key]);
-        }
-      });
+    if (!editingId || !editData || !onEdit) return;
+
+    // Валидация перед сохранением
+    const errors: Record<string, string> = {};
+    columns.forEach(column => {
+      if (column.editable !== false && column.validator) {
+        const error = column.validator(editData[column.id]);
+        if (error) errors[column.id] = error;
+      }
+    });
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
     }
+
+    // Отправляем изменения
+    Object.keys(editData).forEach(key => {
+      if (key !== idField && editData[key] !== data.find(item => item[idField] === editingId)?.[key]) {
+        onEdit(editingId, key, editData[key]);
+      }
+    });
+
     setEditingId(null);
     setEditData(null);
   };
