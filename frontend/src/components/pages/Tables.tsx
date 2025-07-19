@@ -95,10 +95,10 @@ const ServerConnectedTable: React.FC<Props> = ({ isFirst }) => {
       const formattedColumns = response.data.field_order.map(
         (fieldId) => ({
           id: fieldId,
-          label: response.data.field_names.fieldId,
+          label: response.data.field_names[fieldId],
           minWidth: 100,
           align: 'left' as const,
-          editable: fieldId !== 'id',
+          editable: response.data.field_names[fieldId] !== 'id',
           validator: getDefaultValidator(fieldId),
         })
       );
